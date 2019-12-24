@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="cn">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        .title_font {
+            font-style: italic;
+            font-size: 30px;
+            font-weight: bolder;
+            color: #0033AA;
+            line-height: 60px;
+        }
+
+        #nav_color > .active > a, a:hover, a:focus {
+            background-color: transparent;
+            color: white;
+            font-weight: bolder;
+        }
+
+        #nav_color > li > a {
+            color: white;
+            font-size: larger;
+        }
+    </style>
+    <link rel="shortcut icon" href="/static/pics/Standards.png">
+    <link rel="stylesheet" href="/static/bootstrap-4.3.1-dist/css/bootstrap.css">
+    <link rel="stylesheet" href="/static/font-awesome-4.7.0/css/font-awesome.min.css">
+
+</head>
+<body>
+<div class="row">
+    <div class="col-md-3"><img src="/static/pics/page1_logo.png" alt=""></div>
+    <div class="col-md-3 title_font">FEA Sealing System</div>
+</div>
+<div class="row" id="home_menu">
+    {% include 'home_menuBar.html' %}
+</div>
+
+<div class="row" id="pre_process">
+    {% include 'home_preprocess.html' %}
+</div>
+
+<div class="row" id="post_process" style="display: none">
+    {% include 'home_postprocess.html' %}
+</div>
+
+<!---->
+<!--缸盖垫片后处理界面 开始-->
+{% include 'home_postprocess_chg_main.html' %}
+<!--缸盖垫片后处理界面 结束-->
+<!---->
+</body>
+
+<script src="/static/jq/jquery-3.4.1.js"></script>
+<script src="/static/bootstrap-4.3.1-dist/js/popper.min.js"></script>
+<script src="/static/bootstrap-4.3.1-dist/js/bootstrap.js"></script>
+
+<script>
+    $(function () {
+        var window_pre_process = $('#pre_process');
+        var window_post_process = $('#post_process');
+
+
+        $('#a_pre_process').on('click', function () {
+            window_pre_process.show();
+            window_post_process.hide();
+        });
+        $('#a_post_process').on('click', function () {
+            window_pre_process.hide();
+            window_post_process.show();
+        });
+
+        $(".server_list a").click(function () {
+            $("#server_list_dropdown").text($(this).text());
+            $("#server_list_dropdown").val($(this).text());
+        });
+
+        $(".cylinder_number a").click(function () {
+            var cyl_num = $(this).text();
+            $("#cylinder_number_dropdown").text(cyl_num);
+            $("#cylinder_number_dropdown").val(cyl_num);
+            create_boreTable_body();
+        });
+
+        var distortion_manually = $('#div_boredistortion_manually');
+        var distortion_auto1 = $('#div_boredistortion_auto1');
+        var distortion_auto2 = $('#div_boredistortion_auto2');
+
+        $('#boredistortion_manually').on('click', function () {
+            if (this.checked) {
+                distortion_manually.show();
+                distortion_auto1.hide();
+                distortion_auto2.hide();
+            } else {
+                distortion_manually.hide();
+                distortion_auto1.show();
+                distortion_auto2.show();
+            }
+        });
+        $('#boredistortion_auto').on('click', function () {
+            if (this.checked) {
+                distortion_manually.hide();
+                distortion_auto1.show();
+                distortion_auto2.show();
+            } else {
+                distortion_manually.show();
+                distortion_auto1.hide();
+                distortion_auto2.hide();
+            }
+        });
+
+    });
+
+
+    jQuery(document).delegate('#add_set_record', 'click', function (e) {
+        e.preventDefault();
+        var content = jQuery('#add_new_elemset tr'),
+            size = jQuery('#tbl_add_set_baseinfo >tbody >tr').length + 1,
+            element = null,
+            element = content.clone();
+        {#tr的ID <tr id="rec-6">#}
+        element.addClass('add_element_set');
+        element.attr('id', 'rec-' + size);
+        {#垃圾筐的ID <a class="btn btn-xs delete-set-record" data-id="6">#}
+        element.find('.delete-set-record').attr('data-id', size);
+        element.appendTo('#tbl_add_set_baseinfo');
+        element.find('.sn').html(size);
+    });
+
+
+    jQuery(document).delegate('a.delete-set-record', 'click', function (e) {
+        e.preventDefault();
+        var didConfirm = confirm("Are you sure You want to delete");
+        if (didConfirm == true) {
+            var id = jQuery(this).attr('data-id');
+            var targetDiv = jQuery(this).attr('targetDiv');
+            jQuery('#rec-' + id).remove();
+
+            //regnerate index number on table
+            $('#tbl_add_set_baseinfo tr').each(function (index) {
+                //alert(index);
+                $(this).find('span.sn').html(index + 1);
+            });
+            return true;
+        } else {
+            return false;
+        }
+    });
+
+
+    jQuery(document).delegate('a.add-cam-record', 'click', function (e) {
+        e.preventDefault();
+        var content = jQuery('#add_new_camnode tr'),
+            size = jQuery('#tbl_add_cam >tbody >tr').length + 1,
+            element = null,
+            element = content.clone();
+        element.addClass('add_camnode_set');
+        element.attr('id', 'rec-' + size);
+        element.find('.delete-cam-record').attr('data-id', size);
+        element.appendTo('#tbl_add_cam');
+        element.find('.sn').html(size);
+    });
+
+
+    jQuery(document).delegate('a.delete-cam-record', 'click', function (e) {
+        e.preventDefault();
+        var didConfirm = confirm("Are you sure You want to delete");
+        if (didConfirm == true) {
+            var id = jQuery(this).attr('data-id');
+            var targetDiv = jQuery(this).attr('targetDiv');
+            jQuery('#rec-' + id).remove();
+
+            //regnerate index number on table
+            $('#tbl_add_cam tr').each(function (index) {
+                //alert(index);
+                $(this).find('span.sn').html(index + 1);
+            });
+            return true;
+        } else {
+            return false;
+        }
+    });
+
+
+    $('#boredistortion_manually').on('click', function () {
+        $(this).parent().find('a').trigger('click')
+    })
+
+
+    $('#boredistortion_auto').on('click', function () {
+        $(this).parent().find('a').trigger('click')
+    })
+
+
+    function create_boreTable_head() {
+        var tableData = '';
+        tableData += '<tr>';
+        tableData += '<th scope="row" colspan="3">';
+        tableData += '<div class="input-group-prepend">';
+        tableData += '<span class="input-group-text"title="The distance between center of two adjacent bores">Distance</span>';
+        tableData += '<input type="text" class="form-control" aria-label="Sizing example input" id="distance_between_bores" value="88" onchange="create_boreTable_body()">';
+        tableData += '</div>';
+        tableData += '</th>';
+        tableData += '<th colspan="2">';
+        tableData += '<div class="input-group-prepend">';
+        tableData += '<span class="input-group-text" title="Y coordinate of bore center">Bore_Y</span>';
+        tableData += '<input type="text" class="form-control" aria-label="Sizing example input" id="bore_center_y" value="0">';
+        tableData += '</div>';
+        tableData += '</th>';
+        tableData += '</tr>';
+        tableData += '<tr>';
+        tableData += '<th>Name</th>';
+        tableData += '<th>Select</th>';
+        tableData += '<th>Center</th>';
+        tableData += '<th>Min</th>';
+        tableData += '<th>Max</th>';
+        tableData += '</tr>';
+        $("#tbl_add_gasket_info").html(tableData);
+    }
+
+
+    function create_boreTable_body() {
+        var cyl_num = $("#cylinder_number_dropdown").val();
+        var bore_distance = parseInt($("#distance_between_bores").val());
+        cyl_num = parseInt(cyl_num.substring(0, 1));
+        var cylinder_name = ['A', 'B', 'C', 'D', 'E', 'F'];
+        var tbody = document.getElementById('tbl_add_gasket_info');
+        for (var i = 0; i < 6; i++) {
+            let tr_drop = document.getElementById('Bore_' + (i + 1));
+            if (tr_drop) {
+                tbody.removeChild(tr_drop);
+            }
+        }
+        for (var i = 0; i < cyl_num; i++) {
+            if (i == 0) {
+                var temp = [0, -bore_distance, bore_distance / 2]
+            } else {
+                var temp = [i * bore_distance, i * bore_distance - bore_distance / 2, i * bore_distance + bore_distance / 2]
+            }
+            if (i == cyl_num - 1) {
+                var temp = [i * bore_distance, i * bore_distance - bore_distance / 2, i * bore_distance + bore_distance]
+            }
+            var tr = document.createElement('tr');
+            tr.id = 'Bore_' + (i + 1);
+            tr.className = 'BoreSelect';
+            var td1 = document.createElement('td');
+            {#cylinder name#}
+            td1.colSpan = 1;
+            td1.innerHTML = '<input type="text" class="form-control" title="Cylinder' + (i + 1) + ' name in report" id="cylinder_name_' + (i + 1) + '" value="' + cylinder_name[i] + '">';
+            tr.appendChild(td1);
+            {#cylinder checkbox#}
+            var td2 = document.createElement('td');
+            td2.colSpan = 1;
+            var temp_html = '<div class="form-check form-check-inline">';
+            temp_html += '<input class="form-check-input" type="checkbox" value="1" checked id="cylinder_check_' + (i + 1) + '" onclick="bore_checkbox(' + (i + 1) + ')">';
+            temp_html += '<label class="form-check-label" for="cylinder_check' + (i + 1) + '">Bore' + (i + 1) + '</label>';
+            td2.innerHTML = temp_html;
+            tr.appendChild(td2);
+            {#cylinder center#}
+            var td3 = document.createElement('td');
+            td3.colSpan = 1;
+            td3.innerHTML = '<input type="text" class="form-control" title="Cylinder' + (i + 1) + ' center X" id="cylinder_x_' + (i + 1) + '" value=' + temp[0] + '>';
+            tr.appendChild(td3);
+            {#cylinder min#}
+            var td4 = document.createElement('td');
+            td4.colSpan = 1;
+            td4.innerHTML = '<input type="text" class="form-control" title="Cylinder' + (i + 1) + ' min X" id="cylinder_x_min_' + (i + 1) + '" value=' + temp[1] + '>';
+            tr.appendChild(td4);
+            {#cylinder max#}
+            var td5 = document.createElement('td');
+            td5.colSpan = 1;
+            td5.innerHTML = '<input type="text" class="form-control" title="Cylinder' + (i + 1) + ' max X" id="cylinder_x_max_' + (i + 1) + '" value=' + temp[2] + '>';
+            tr.appendChild(td5);
+            tbody.appendChild(tr);
+        }
+
+    }
+
+
+    function bore_checkbox(cylinder_num) {
+        var name_box = $('#cylinder_name_' + cylinder_num);
+        var center_box = $('#cylinder_x_' + cylinder_num);
+        var min_box = $('#cylinder_x_min_' + cylinder_num);
+        var max_box = $('#cylinder_x_max_' + cylinder_num);
+        var current_checkbox = $('#cylinder_check_' + cylinder_num + ':checked').val();
+
+        if (current_checkbox) {
+            name_box.removeAttr('disabled');
+            center_box.removeAttr('disabled');
+            min_box.removeAttr('disabled');
+            max_box.removeAttr('disabled');
+        } else {
+            name_box.attr('disabled', 'disabled');
+            center_box.attr('disabled', 'disabled');
+            min_box.attr('disabled', 'disabled');
+            max_box.attr('disabled', 'disabled');
+        }
+
+    }
+
+
+    function auto_infor_read() {
+        var tableData = '';
+        tableData += '<tr>';
+        tableData += '<th scope="row" colspan="2">';
+        tableData += '<div class="input-group-prepend">';
+        tableData += '<span class="input-group-text">Bolt Node</span>';
+        tableData += '<input type="text" class="form-control" aria-label="Sizing example input" id="bolt_node" title="Bolt Node Set for History Output">';
+        tableData += '</div>';
+        tableData += '</th>';
+        tableData += '<th scope="row" colspan="2">';
+        tableData += '<div class="input-group-prepend">';
+        tableData += '<span class="input-group-text">Bolt Force</span>';
+        tableData += '<input type="text" class="form-control" aria-label="Sizing example input" id="bolt_force" title="Initial Assembly Bolt Force (N)">';
+        tableData += '</div>';
+        tableData += '</th>';
+
+        tableData += '<th colspan="2">';
+        tableData += '<div class="custom-control custom-checkbox">';
+        tableData += '<input type="checkbox" class="custom-control-input" id="relative_motion_check">';
+        tableData += '<label class="custom-control-label" for="relative_motion_check">Relative Motion</label>';
+        tableData += '</div>';
+        tableData += '</th>';
+        tableData += '</tr>';
+        tableData += '<tr>';
+        tableData += '<th scope="row" colspan="2">';
+        tableData += '<div class="input-group-prepend">';
+        tableData += '<span class="input-group-text" title="Firing Cycles">Cycles</span>';
+        tableData += '<input type="text" class="form-control" aria-label="Sizing example input" id="firing_cycles" onchange="create_firing_cycles()">';
+        tableData += '</div>';
+        tableData += '</th>';
+        tableData += '<th colspan="2">';
+        tableData += '<div class="input-group-prepend">';
+        tableData += '<span class="input-group-text" title="Initial Assembly Step Num">Ini_Assem</span>';
+        tableData += '<input type="text" class="form-control" aria-label="Sizing example input" id="step_ini_assem">';
+        tableData += '</div>';
+        tableData += '</th>';
+        tableData += '<th colspan="2">';
+        tableData += '<div class="input-group-prepend">';
+        tableData += '<span class="input-group-text" title="Hot Assembly Step Num">Hot_Assem</span>';
+        tableData += '<input type="text" class="form-control" aria-label="Sizing example input" id="step_hot_assem">';
+        tableData += '</div>';
+        tableData += '</th>';
+        tableData += '</tr>';
+        $("#tbl_auto_infor_info").html(tableData);
+    }
+
+
+    function create_firing_cycles() {
+        var firing_cycles = parseInt($("#firing_cycles").val());
+        var tbody = document.getElementById('tbl_auto_infor_info');
+        var MAX_FIRING_CYCLE = parseInt({{ MAX_FIRING_CYCLE }});
+        for (var i = 0; i < MAX_FIRING_CYCLE; i++) {
+            let tr_drop = document.getElementById('firing_cycle_' + (i + 1));
+            if (tr_drop) {
+                tbody.removeChild(tr_drop);
+            }
+        }
+
+        for (var i = 0; i < firing_cycles; i++) {
+            var tr = document.createElement('tr');
+            tr.id = 'firing_cycle_' + (i + 1);
+            var td1 = document.createElement('td');
+            {#firing cycle order#}
+            td1.colSpan = 2;
+            td1.innerHTML = '<span class="input-group-text" title="Firing Cycles">Cycles_' + (i + 1) + '</span>';
+            tr.appendChild(td1);
+            {#firing cycle name#}
+            var td2 = document.createElement('td');
+            td2.colSpan = 1;
+            td2.innerHTML = '<input type="text" class="form-control" aria-label="Sizing example input" id="firing_cycle_name_' + (i + 1) + '">';
+            tr.appendChild(td2);
+            {#firing cycle fixed step#}
+            var td3 = document.createElement('td');
+            td3.colSpan = 2;
+            td3.innerHTML = '<span class="input-group-text" title="Fixed Step for Cycles">Fixed' + (i + 1) + '</span>';
+            tr.appendChild(td3);
+            var td4 = document.createElement('td');
+            td4.colSpan = 1;
+            td4.innerHTML = '<input type="text" class="form-control" aria-label="Sizing example input" id="firing_cycle_fixed_' + (i + 1) + '">';
+            tr.appendChild(td4);
+            tbody.appendChild(tr);
+        }
+
+    }
+
+
+    $('#fatigue_button').on('click', function () {
+        var fatigue_set = $("#fatigue_set").val();
+        var fatigue_set_num = fatigue_set.split(',');
+        var post_temp = JSON.stringify({'main_input_file': $('#main_input_file').val(),});
+        var tbody = document.getElementById('tbl_fatigue_set_info');
+        var MAX_FATIGUE_NUM = parseInt({{ MAX_FATIGUE_NUM }});
+        for (var i = 0; i < MAX_FATIGUE_NUM; i++) {
+            let tr_drop = document.getElementById('fatigue_set_' + (i + 1));
+            if (tr_drop) {
+                tbody.removeChild(tr_drop);
+            }
+        }
+        $.ajax({
+            //这里的url就是向后台发送的地址,所以会直接转到read_main的地址上.
+            url: '/set_fatigue/',
+            type: 'post',
+            contentType: 'application/json',
+            dataType: 'json',
+            //向后台提交的数据
+            data: post_temp,
+            //这里的data是后台传过来的数据,url里面执行的代码的返回值
+            success: function (data) {
+                var gasket_section = data.gasket_section;
+                for (var i = 0; i < fatigue_set_num.length; i++) {
+                    var tr = document.createElement('tr');
+                    tr.id = 'fatigue_set_' + (i + 1);
+                    var th1 = document.createElement('th');
+                    th1.scope = 'row';
+                    th1.innerText = i + 1;
+                    tr.appendChild(th1);
+                    var td1 = document.createElement('td');
+                    td1.innerText = fatigue_set_num[i];
+                    tr.appendChild(td1);
+                    var td2 = document.createElement('td');
+                    {#判断字典中是否存在这个key#}
+                    if (gasket_section.hasOwnProperty(fatigue_set_num[i])) {
+                        td2.innerText = gasket_section[fatigue_set_num[i]][0];
+                    } else {
+                        td2.innerText = 'NOT DEFINED';
+                    }
+                    tr.appendChild(td2);
+                    var td3 = document.createElement('td');
+                    tr.appendChild(td3);
+                    td3.innerHTML = '<input type="text" class="form-control" aria-label="Sizing example input" id="fatigue_id_' + (i + 1) + '">';
+                    tbody.appendChild(tr);
+                    if (gasket_section.hasOwnProperty(fatigue_set_num[i])) {
+                        $("#fatigue_id_" + (i + 1)).val(gasket_section[fatigue_set_num[i]][2]);
+                    } else {
+                        $("#fatigue_id_" + (i + 1)).val(0);
+                    }
+                }
+            }
+        });
+    })
+
+
+    $('#read_main').click(function () {
+
+        var sitv = setInterval(function () {
+            var prog_url = '/show_progress_read';
+            $.getJSON(prog_url, function (data) {
+                $('.progress-bar').css('width', data.num_progress + '%');
+                $('.progress-bar').text(data.num_progress + '%');
+                $('.progress-text').text(data.text_progress);
+
+                if (data.num_progress == '95') {
+                    clearInterval(sitv);
+                    $('.progress-bar').css('width', '100%');
+                    $('.progress-bar').text('100%');
+                    $('.progress-text').text('User Input Finished');
+                }
+            })
+        }, 100);//每隔100毫秒刷新一次数据
+
+        var thisurl = '/read_main';
+        $.getJSON(thisurl, function () {
+            clearInterval(sitv);
+        });
+
+        var post_data = {
+            'server_name': $('#server_list_dropdown').val(),
+            'server_location': $('#server_location').val(),
+            'local_location': $('#local_location').val(),
+            'main_input_file': $('#main_input_file').val(),
+            'gasket_input_file': $('#gasket_input_file').val(),
+        };
+
+        var post_temp = JSON.stringify(post_data);
+        $.ajax({
+            //这里的url就是向后台发送的地址,所以会直接转到read_main的地址上.
+            url: '/read_main/',
+            type: 'post',
+            contentType: 'application/json',
+            dataType: 'json',
+            //向后台提交的数据
+            data: post_temp,
+            //这里的data是后台传过来的数据,url里面执行的代码的返回值
+            success: function (data) {
+                $("#firing_cycles").val(data.fixed_step.length);
+                create_firing_cycles();
+                for (var i = 0; i < data.fixed_step.length; i++) {
+                    $('#firing_cycle_name_' + (i + 1)).val('Cycle_' + (i + 1))
+                    $('#firing_cycle_fixed_' + (i + 1)).val(data.fixed_step[i])
+                }
+                $("#cylinder_number_dropdown").val(data.cylinder_num);
+                if (data.cylinder_num == 1) {
+                    $("#cylinder_number_dropdown").text(data.cylinder_num + ' Cylinder');
+                } else {
+                    $("#cylinder_number_dropdown").text(data.cylinder_num + ' Cylinders');
+                }
+
+                create_boreTable_body();
+                $('#txt_peak_pressure').val(data.p_dome);
+                $('#step_ini_assem').val(data.ini_assem);
+                $('#step_hot_assem').val(data.hot_assem);
+                $('#fea_number').val(data.request_number);
+                $('#requestor').val(data.submit_name);
+                $('#analyst').val(data.analyst_name);
+                $('#customer_name').val(data.customer);
+                $('#project_name').val(data.project_name);
+                $('#request_title').val(data.title);
+                $('#bolt_node').val(data.bolt_node);
+                $('#bolt_force').val(data.bolt_force);
+                if (data.relative_motion == 'NO') {
+                    $('#relative_motion_check').prop("checked", false);
+                } else {
+                    $('#relative_motion_check').prop("checked", true);
+                }
+                $('#report_set').val(data.report_set);
+                $('#fatigue_set').val(data.fatigue_set);
+
+                $('#gasket_lds').removeClass('disabled');
+                $('#gasket_lds').removeClass('btn-secondary');
+                $('#gasket_lds').addClass('btn-success');
+                $('#gasket_lds').attr('aria-disabled', 'false');
+                {#<img src='/static/pics/LDs_Check.png'>#}
+                var ld_path = "<img src='" + data.lds_saved + "'>";
+                var strs = new Array();
+                strs = data.lds_saved.split('/');
+                var new_title = strs.slice(-1)[0];
+                $('#gasket_lds').attr('title', new_title);
+                $('#gasket_lds').attr('data-content', ld_path);
+                {#    读取完成后,需要锁定一些输入框#}
+                $('#server_list_dropdown').attr('disabled', 'disabled');
+                $('#server_location').attr('disabled', 'disabled');
+                $('#main_input_file').attr('disabled', 'disabled');
+                $('#gasket_input_file').attr('disabled', 'disabled');
+                {#以上为文件,路径输入框锁定#}
+                $('#fea_number').attr('disabled', 'disabled');
+                $('#txt_peak_pressure').attr('disabled', 'disabled');
+                $('#requestor').attr('disabled', 'disabled');
+                $('#analyst').attr('disabled', 'disabled');
+                $('#customer_name').attr('disabled', 'disabled');
+                $('#project_name').attr('disabled', 'disabled');
+                $('#request_title').attr('disabled', 'disabled');
+                $('#peak_pressure').attr('disabled', 'disabled');
+                $('#bolt_node').attr('disabled', 'disabled');
+                $('#bolt_force').attr('disabled', 'disabled');
+                $('#relative_motion_check').attr('disabled', 'disabled');
+                $('#firing_cycles').attr('disabled', 'disabled');
+                $('#step_ini_assem').attr('disabled', 'disabled');
+                $('#step_hot_assem').attr('disabled', 'disabled');
+                var firing_cycles = parseInt($("#firing_cycles").val());
+                for (var i = 0; i < firing_cycles; i++) {
+                    $('#firing_cycle_fixed_' + (i + 1)).attr('disabled', 'disabled');
+                }
+            }
+        });
+    })
+
+
+    $('#create_python').click(function () {
+        var add_elem_set = document.getElementsByClassName('add_element_set');
+        var set_name = new Array();
+        var elem_list = new Array();
+        if (add_elem_set.length > 0) {
+            for (current_item of add_elem_set) {
+                var current_set_name = current_item.getElementsByClassName('elem_set_name')[0].value;
+                var current_set_list = current_item.getElementsByClassName('elem_set_list')[0].value;
+                set_name.push(current_set_name);
+                elem_list.push(current_set_list);
+            }
+        }
+
+        var cam_node_set = document.getElementsByClassName('add_camnode_set');
+        var cam_node_list = new Array();
+        if (cam_node_set.length > 0) {
+            for (current_item of cam_node_set) {
+                var current_set_list = current_item.getElementsByClassName('cam_node_list')[0].value;
+                cam_node_list.push(current_set_list);
+            }
+        }
+
+        var firing_cylinder_name = new Array();
+        var firing_cylinder_x_center = new Array();
+        var firing_cylinder_x_min = new Array();
+        var firing_cylinder_x_max = new Array();
+
+        for (var i = 0; i < 6; i++) {
+            var current_checkbox = $('#cylinder_check_' + (i + 1) + ':checked').val();
+            var name_box = $('#cylinder_name_' + (i + 1));
+            var center_box = $('#cylinder_x_' + (i + 1));
+            var min_box = $('#cylinder_x_min_' + (i + 1));
+            var max_box = $('#cylinder_x_max_' + (i + 1));
+            if (current_checkbox) {
+                firing_cylinder_name.push(name_box.val());
+                firing_cylinder_x_center.push(center_box.val());
+                firing_cylinder_x_min.push(min_box.val());
+                firing_cylinder_x_max.push(max_box.val());
+            }
+        }
+
+        var fatigue_id = new Array();
+        var fatigue_num = $("#fatigue_set").val().split(',').length;
+        for (var i = 0; i < fatigue_num; i++) {
+            var current_id = $('#fatigue_id_' + (i + 1)).val();
+            fatigue_id.push(current_id);
+        }
+
+        var firing_name_list = new Array();
+        var firing_cycles = parseInt($("#firing_cycles").val());
+        for (var i = 0; i < firing_cycles; i++) {
+            var cycle_name = $('#firing_cycle_name_' + (i + 1)).val();
+            firing_name_list.push(cycle_name);
+        }
+
+        var post_data = {
+            'main_input_file': $('#main_input_file').val(),
+            'local_location': $('#local_location').val(),
+            'total_cylinder_num': $("#cylinder_number_dropdown").val(),
+            'report_set': $('#report_set').val(),
+            'fatigue_set': $('#fatigue_set').val(),
+            'excel_set': $('#excel_set').val(),
+            'bore_distortion_step': $('#bore_distortion_step').val(),
+            'bore_distortion_order': $('#bore_distortion_order').val(),
+            'bore_distortion_radius': $('#bore_distortion_radius').val(),
+            'boredistortion_manually': $('#boredistortion_manually:checked').val(),
+            'boredistortion_auto': $('#boredistortion_auto:checked').val(),
+            'boredistortion_manually_nodeset': $('#boredistortion_manually_nodeset').val(),
+            'boredistortion_auto_points': $('#boredistortion_auto_points').val(),
+            'boredistortion_auto_layers': $('#boredistortion_auto_layers').val(),
+            'boredistortion_auto_linername': $('#boredistortion_auto_linername').val(),
+            'boredistortion_auto_starts': $('#boredistortion_auto_starts').val(),
+            'boredistortion_auto_ends': $('#boredistortion_auto_ends').val(),
+            'cam_distortion_step': $('#cam_distortion_step').val(),
+            'distance_between_bores': $('#distance_between_bores').val(),
+            'bore_center_y': $('#bore_center_y').val(),
+            'add_elem_set_name': set_name,
+            'add_elem_set_list': elem_list,
+            'add_cam_node_list': cam_node_list,
+            'firing_cylinder_name': firing_cylinder_name,
+            'firing_cylinder_x_center': firing_cylinder_x_center,
+            'firing_cylinder_x_min': firing_cylinder_x_min,
+            'firing_cylinder_x_max': firing_cylinder_x_max,
+            'firing_name_list': firing_name_list,
+            'fatigue_id': fatigue_id,
+        }
+
+        var post_temp = JSON.stringify(post_data);
+        $.ajax({
+            //这里的url就是向后台发送的地址,所以会直接转到read_main的地址上.
+            url: '/create_python/',
+            type: 'post',
+            contentType: 'application/json',
+            dataType: 'json',
+            //向后台提交的数据
+            data: post_temp,
+            //这里的data是后台传过来的数据,url里面执行的代码的返回值
+            success: function (data) {
+                alert("Create File Finished");
+                $('#create_python').removeClass('disabled');
+            }
+        });
+    })
+
+
+    $('#view_log').click(function () {
+        var tableData = '';
+        var post_data = {
+            'main_input_file': $('#main_input_file').val(),
+        }
+
+        var post_temp = JSON.stringify(post_data);
+        $.ajax({
+            //这里的url就是向后台发送的地址,所以会直接转到read_main的地址上.
+            url: '/show_log/',
+            type: 'post',
+            contentType: 'application/json',
+            dataType: 'json',
+            //向后台提交的数据
+            data: post_temp,
+            //这里的data是后台传过来的数据,url里面执行的代码的返回值
+            success: function (data) {
+                var log_content = data.process_log;
+                tableData += '<h3>' + data.request_number + ' Log</h3>';
+                tableData += '<ul>';
+                for (var i = 0; i < log_content.length; i++) {
+                    tableData += '<li>' + log_content[i].join("--")+ '</li>';
+                }
+                tableData += '</ul>';
+                $('#view_log').attr('data-content', tableData);
+                $('#view_log').css('max-width', '600px');
+                $('#view_log').removeClass('disabled');
+                $('#view_log').removeClass('btn-secondary');
+                $('#view_log').addClass('btn-success');
+                $('#view_log').attr('aria-disabled', 'false');
+            }
+        });
+    })
+
+
+    $('#start_cal').click(function () {
+        var add_elem_set = document.getElementsByClassName('add_element_set');
+        var set_name = new Array();
+        var elem_list = new Array();
+        if (add_elem_set.length > 0) {
+            for (current_item of add_elem_set) {
+                var current_set_name = current_item.getElementsByClassName('elem_set_name')[0].value;
+                var current_set_list = current_item.getElementsByClassName('elem_set_list')[0].value;
+                set_name.push(current_set_name);
+                elem_list.push(current_set_list);
+            }
+        }
+
+        var cam_node_set = document.getElementsByClassName('add_camnode_set');
+        var cam_node_list = new Array();
+        if (cam_node_set.length > 0) {
+            for (current_item of cam_node_set) {
+                var current_set_list = current_item.getElementsByClassName('cam_node_list')[0].value;
+                cam_node_list.push(current_set_list);
+            }
+        }
+
+        var firing_cylinder_name = new Array();
+        var firing_cylinder_x_center = new Array();
+        var firing_cylinder_x_min = new Array();
+        var firing_cylinder_x_max = new Array();
+
+        for (var i = 0; i < 6; i++) {
+            var current_checkbox = $('#cylinder_check_' + (i + 1) + ':checked').val();
+            var name_box = $('#cylinder_name_' + (i + 1));
+            var center_box = $('#cylinder_x_' + (i + 1));
+            var min_box = $('#cylinder_x_min_' + (i + 1));
+            var max_box = $('#cylinder_x_max_' + (i + 1));
+            if (current_checkbox) {
+                firing_cylinder_name.push(name_box.val());
+                firing_cylinder_x_center.push(center_box.val());
+                firing_cylinder_x_min.push(min_box.val());
+                firing_cylinder_x_max.push(max_box.val());
+            }
+        }
+
+        var fatigue_id = new Array();
+        var fatigue_num = $("#fatigue_set").val().split(',').length;
+        for (var i = 0; i < fatigue_num; i++) {
+            var current_id = $('#fatigue_id_' + (i + 1)).val();
+            fatigue_id.push(current_id);
+        }
+
+        var firing_name_list = new Array();
+        var firing_cycles = parseInt($("#firing_cycles").val());
+        for (var i = 0; i < firing_cycles; i++) {
+            var cycle_name = $('#firing_cycle_name_' + (i + 1)).val();
+            firing_name_list.push(cycle_name);
+        }
+
+        var post_data = {
+            'server_name': $('#server_list_dropdown').val(),
+            'server_location': $('#server_location').val(),
+            'main_input_file': $('#main_input_file').val(),
+            'local_location': $('#local_location').val(),
+            'total_cylinder_num': $("#cylinder_number_dropdown").val(),
+            'report_set': $('#report_set').val(),
+            'fatigue_set': $('#fatigue_set').val(),
+            'excel_set': $('#excel_set').val(),
+            'add_elem_set_name': set_name,
+            'add_elem_set_list': elem_list,
+            'bore_distortion_step': $('#bore_distortion_step').val(),
+            'bore_distortion_order': $('#bore_distortion_order').val(),
+            'bore_distortion_radius': $('#bore_distortion_radius').val(),
+            'boredistortion_manually': $('#boredistortion_manually:checked').val(),
+            'boredistortion_auto': $('#boredistortion_auto:checked').val(),
+            'boredistortion_manually_nodeset': $('#boredistortion_manually_nodeset').val(),
+            'boredistortion_auto_points': $('#boredistortion_auto_points').val(),
+            'boredistortion_auto_layers': $('#boredistortion_auto_layers').val(),
+            'boredistortion_auto_linername': $('#boredistortion_auto_linername').val(),
+            'boredistortion_auto_starts': $('#boredistortion_auto_starts').val(),
+            'boredistortion_auto_ends': $('#boredistortion_auto_ends').val(),
+            'cam_distortion_step': $('#cam_distortion_step').val(),
+            'add_cam_node_list': cam_node_list,
+            'fatigue_id': fatigue_id,
+            'distance_between_bores': $('#distance_between_bores').val(),
+            'bore_center_y': $('#bore_center_y').val(),
+            'firing_cylinder_name': firing_cylinder_name,
+            'firing_cylinder_x_center': firing_cylinder_x_center,
+            'firing_cylinder_x_min': firing_cylinder_x_min,
+            'firing_cylinder_x_max': firing_cylinder_x_max,
+            'firing_name_list': firing_name_list,
+
+        }
+
+
+        $('.progress-text').text('Data Processing Start');
+        $('.progress-bar').css('width', '1%');
+        $('.progress-bar').text('1%');
+
+        var sitv = setInterval(function () {
+            var prog_url = '/show_progress_process?hostname=' + post_data['server_name'].toLowerCase();
+            $.getJSON(prog_url, function (data) {
+                $('.progress-bar').css('width', data.num_progress + '%');
+                $('.progress-bar').text(data.num_progress + '%');
+                $('.progress-text').text(data.text_progress);
+
+                if (data.num_progress == '95') {
+                    clearInterval(sitv);
+                    $('.progress-bar').css('width', '100%');
+                    $('.progress-bar').text('100%');
+                    $('.progress-text').text('Data Processing Finished');
+                }
+            })
+        }, 1000);//每隔100毫秒刷新一次数据
+
+        var thisurl = '/start_process';
+        $.getJSON(thisurl, function () {
+            clearInterval(sitv);
+        });
+
+
+
+
+        var post_temp = JSON.stringify(post_data);
+        $.ajax({
+            //这里的url就是向后台发送的地址,所以会直接转到read_main的地址上.
+            url: '/start_process/',
+            type: 'post',
+            contentType: 'application/json',
+            dataType: 'json',
+            //向后台提交的数据
+            data: post_temp,
+            //这里的data是后台传过来的数据,url里面执行的代码的返回值
+            success: function (data) {
+                alert("Start Processing Data");
+                $('#create_python').removeClass('disabled');
+            }
+        });
+    })
+    
+    $(function () {
+        $("[data-toggle='popover']").popover(
+            {
+                container: 'body',
+                placement: 'right',
+                {#trigger: 'hover',#}
+            }
+        );
+    });
+</script>
+
+
+</html>

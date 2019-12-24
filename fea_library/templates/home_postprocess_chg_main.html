@@ -1,0 +1,346 @@
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="modal fade" id="post_chg" tabindex="-1" role="dialog" aria-labelledby="post_chg_ModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable" role="document">
+            <div class="modal-content">
+                <div class="modal-header" id="post_header">
+                    <h5 class="modal-title" id="post_chg_ModalLabel">Post Process Tool For Cylinder Head Gasket
+                        Analysis</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    {% include 'home_postprocess_chg_header.html' %}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <table class="table table-sm table-bordered" id="tbl_add_set_baseinfo">
+                                <thead class="thead-light">
+                                <tr>
+                                    <th scope="col" colspan="4">Base Information</th>
+                                </tr>
+                                </thead>
+                                <tbody id="tbl_add_set_body_baseinfo">
+                                <tr>
+                                    <th scope="row">
+                                        <div class="btn-group">
+                                            <button type="button" class="btn btn-secondary dropdown-toggle"
+                                                    data-toggle="dropdown"
+                                                    aria-haspopup="true" aria-expanded="false"
+                                                    id="cylinder_number_dropdown">
+                                                Cylinder No.
+                                            </button>
+                                            <div class="dropdown-menu cylinder_number">
+                                                <a class="dropdown-item" href="#">1 Cylinder</a>
+                                                <a class="dropdown-item" href="#">2 Cylinders</a>
+                                                <a class="dropdown-item" href="#">3 Cylinders</a>
+                                                <a class="dropdown-item" href="#">4 Cylinders</a>
+                                                <a class="dropdown-item" href="#">5 Cylinders</a>
+                                                <a class="dropdown-item" href="#">6 Cylinders</a>
+                                            </div>
+                                        </div>
+                                    </th>
+                                    <th scope="row">
+                                        <div class="input-group mb-3">
+                                            <div class="input-group-prepend">
+                                            <span class="input-group-text" id="peak_pressure"
+                                                  title="Peak Pressure (MPa)">PCP (MPa)</span>
+                                            </div>
+                                            <input type="text" class="form-control" id="txt_peak_pressure"
+                                                   placeholder="10.0">
+                                        </div>
+                                    </th>
+                                    <th scope="row">
+                                        <button type="button" class="btn btn-secondary disabled" title="Show LDs"
+                                                data-container="body" data-toggle="popover" data-placement="bottom"
+                                                data-content="<img src='/static/pics/LDs_Check.png'>"
+                                                data-html=true id="gasket_lds" aria-disabled="true">LDs
+                                        </button>
+                                    </th>
+                                </tr>
+                                <tr>
+                                    <th scope="row" colspan="4">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text"
+                                                  title="Gasket Element Set that will be shown in report">Report Set</span>
+                                            <input type="text" class="form-control" aria-label="Sizing example input"
+                                                   aria-describedby="report_set" id="report_set"
+                                                   placeholder="Element Set shown in report">
+                                        </div>
+                                    </th>
+                                </tr>
+                                <tr>
+                                    <th scope="row" colspan="4">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text"
+                                                  title="Gasket Element Set that will be used for fatigue calculation">Fatigue Set</span>
+                                            <input type="text" class="form-control" aria-label="Sizing example input"
+                                                   aria-describedby="fatigue_set" id="fatigue_set"
+                                                   placeholder="Element Set used for fatigue calculation">
+                                            <button type="button" class="btn btn-secondary" id="fatigue_button">OK
+                                            </button>
+                                        </div>
+                                    </th>
+                                </tr>
+                                <tr>
+                                    <th scope="row" colspan="4">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text"
+                                                  title="Gasket Element Set that will create 0-360 degree plot">Excel Set</span>
+                                            <input type="text" class="form-control" aria-label="Sizing example input"
+                                                   aria-describedby="excel_set" id="excel_set"
+                                                   placeholder="Element Set with 0~360 degree plot">
+                                        </div>
+                                    </th>
+                                </tr>
+                                <tr>
+                                    <th colspan="4">
+                                        <div class="well clearfix" title="Forgot to create? You can Add new set.">
+                                            <a class="btn btn-default pull-right" data-added="0" id="add_set_record"><i
+                                                    class="fa fa-plus fa-lg"></i> Add New</a>
+                                        </div>
+                                    </th>
+                                </tr>
+                                </tbody>
+                            </table>
+                            <table class="table table-sm table-bordered">
+                                <thead class="thead-light">
+                                <tr>
+                                    <th scope="col" colspan="6">Bore Distortion</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <th scope="row" colspan="2">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text"
+                                                  title="Step for required bore distortion calculation">Step</span>
+                                            <input type="text" class="form-control" aria-label="Sizing example input"
+                                                   id="bore_distortion_step"
+                                                   value="0">
+                                        </div>
+                                    </th>
+                                    <th scope="row" colspan="2">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text"
+                                                  title="Order for required bore distortion calculation">Order</span>
+                                            <input type="text" class="form-control" aria-label="Sizing example input"
+                                                   id="bore_distortion_order"
+                                                   value="4">
+                                        </div>
+                                    </th>
+                                    <th scope="row" colspan="2">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text"
+                                                  title="Radius for required bore distortion calculation">Radius</span>
+                                            <input type="text" class="form-control" aria-label="Sizing example input"
+                                                   id="bore_distortion_radius" value="50.0">
+                                        </div>
+                                    </th>
+                                </tr>
+                                <tr style="text-align: center">
+                                    <th colspan="3">
+                                        <label class="form-check-label" for="boredistortion_manually">
+                                            <input class="form-check-input" type="radio"
+                                                   name="boredistortion_choice" id="boredistortion_manually"
+                                                   value="manually" checked>
+                                            Manually<a href="#boredistortion_manually"></label>
+                                    </th>
+                                    <th colspan="3">
+                                        <label class="form-check-label" for="boredistortion_auto">
+                                            <input class="form-check-input" type="radio"
+                                                   name="boredistortion_choice" id="boredistortion_auto"
+                                                   value="auto">
+                                            Auto<a href="#boredistortion_auto"></label>
+                                    </th>
+                                </tr>
+                                <tr id="div_boredistortion_manually">
+                                    <div class="input-group-prepend">
+                                        <th colspan="6">
+
+                                            <span class="input-group-text" id="bore_distortion_set"
+                                                  title="Input the Bore Node Set">Name</span>
+                                            <input type="text" class="form-control" placeholder="Bore Node Set"
+                                                   id="boredistortion_manually_nodeset">
+
+                                        </th>
+                                    </div>
+                                </tr>
+                                <tr id="div_boredistortion_auto1" style="display:none">
+                                    <div class="input-group-prepend">
+                                        <th colspan="3">
+                                            <span class="input-group-text" id="bore_distortion_points"
+                                                  title="Points number per layer">Points</span>
+                                            <input type="text" class="form-control"
+                                                   value="72" id="boredistortion_auto_points">
+                                        </th>
+                                        <th colspan="3">
+                                                <span class="input-group-text" id="bore_distortion_layers"
+                                                      title="Total layers per liner">Layers</span>
+                                            <input type="text" class="form-control"
+                                                   value="20" id="boredistortion_auto_layers">
+                                        </th>
+                                    </div>
+                                </tr>
+                                <tr id="div_boredistortion_auto2" style="display:none">
+                                    <div class="input-group-prepend">
+                                        <th colspan="2">
+                                            <span class=" input-group-text" id="bore_distortion_liner"
+                                                  title="Liner Set Name">Liner</span>
+                                            <input type="text" class="form-control"
+                                                   value="Liner" id="boredistortion_auto_linername">
+                                        </th>
+                                        <th colspan="2">
+                                            <span class="input-group-text" id="bore_distortion_starts"
+                                                  title="Top face Z coordinate">Starts</span>
+                                            <input type="text" class="form-control"
+                                                   value="-5" id="boredistortion_auto_starts">
+                                        </th>
+                                        <th colspan="2">
+                                            <span class="input-group-text" id="bore_distortion_ends"
+                                                  title="Bottom face Z coordinate">Ends</span>
+                                            <input type="text" class="form-control"
+                                                   value="-100" id="boredistortion_auto_ends">
+                                        </th>
+                                    </div>
+                                </tr>
+                                </tbody>
+                            </table>
+                            <table class="table table-sm table-bordered" id="tbl_add_cam">
+                                <thead class="thead-light">
+                                <tr>
+                                    <th scope="col" colspan="6">Cam Journal Distortion</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <th scope="row" colspan="3">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text"
+                                                  title="Step for required cam journal distortion calculation">Step</span>
+                                            <input type="text" class="form-control" aria-label="Sizing example input"
+                                                   id="cam_distortion_step" value="0">
+                                        </div>
+                                    </th>
+                                    <th colspan="3">
+                                        <div class="well clearfix" title="Add inputbox to fill in the node path.">
+                                            <a class="btn btn-default pull-right add-cam-record" data-added="0"><i
+                                                    class="fa fa-plus fa-lg"></i> Add New</a>
+                                        </div>
+                                    </th>
+                                </tr>
+
+                                </tbody>
+                            </table>
+                            <table class="table table-sm table-hover table-bordered" id="tbl_fatigue_set">
+                                <thead class="thead-light">
+                                <tr>
+                                    <th scope="col" colspan="6">Fatigue Setting</th>
+                                </tr>
+                                </thead>
+                                <tbody id="tbl_fatigue_set_info">
+                                <tr>
+                                    <th scope="col">No.</th>
+                                    <th scope="col">ElemSet</th>
+                                    <th scope="col">Behavior</th>
+                                    <th scope="col">ID</th>
+                                </tr>
+                                {#会自动生成#}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <table class="table table-sm table-bordered" id="tbl_distance_set">
+                                <thead class="thead-light">
+                                <tr>
+                                    <th scope="col" colspan="6">Gasket Geometry Information</th>
+                                </tr>
+                                </thead>
+                                <tbody id="tbl_add_gasket_info">
+                                {#会自动生成                                    #}
+                                </tbody>
+                            </table>
+                            <table class="table table-sm table-bordered" id="tbl_input_info">
+                                <thead class="thead-light">
+                                <tr>
+                                    <th scope="col" colspan="6">Auto_Read Information</th>
+                                </tr>
+                                </thead>
+                                <tbody id="tbl_auto_infor_info">
+                                <script>
+                                    {#   只能有一个window.onload  #}
+                                    window.onload = function () {
+                                        create_boreTable_head();
+                                        auto_infor_read();
+                                    }
+                                </script>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="progress-div" style="position: absolute; left: 2%;width: 50%">
+                        <div class="progress">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
+                                 aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%">
+                            </div>
+                        </div>
+                        <div class="progress-text active" role="progressbar" aria-valuenow="100" aria-valuemin="0"
+                             aria-valuemax="100"
+                             style="min-width: 2em; width: 100%; text-align: center; background-color: silver">
+                            Waiting for Input
+                        </div>
+                    </div>
+
+                    <div>
+                        <button type="button" class="btn btn-primary" id="read_main">Read_Files</button>
+{#                        <button type="button" class="btn btn-primary disabled" id="create_python">Create Python</button>#}
+                        <button type="button" class="btn btn-primary" id="start_cal">Process</button>
+                        <button type="button" class="btn btn-secondary disabled" title="Log File View"
+                                data-container="body" data-toggle="popover" data-placement="right"
+                                data-content=""
+                                data-html=true id="view_log" aria-disabled="true">View Log
+                        </button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<div style="display:none;">
+    <table id="add_new_elemset">
+        <tr id="">
+            <th colspan="1">
+                <a class="btn btn-xs delete-set-record" data-id="0"><i class="fa fa-trash-o fa-lg"></i></a>
+            </th>
+            <th colspan="1">
+                <input type="text" class="form-control elem_set_name" aria-label="Sizing example input"
+                       placeholder="Set Name">
+            </th>
+            <th colspan="2">
+                <input type="text" class="form-control elem_set_list" aria-label="Sizing example input"
+                       placeholder="elem1, elem2, elem3,...">
+            </th>
+        </tr>
+    </table>
+</div>
+
+<div style="display:none">
+    <table id="add_new_camnode">
+        <tr id="">
+            <th colspan="6">
+                <div class="input-group-prepend">
+                    <a class="btn btn-xs delete-cam-record" data-id="0"><i class="fa fa-trash-o fa-lg"></i></a>
+                    <span class="input-group-text"
+                          title="Intake node path for required cam journal distortion calculation">Node Path</span>
+                    <input type="text" class="form-control cam_node_list" aria-label="Sizing example input"
+                           placeholder="node1,node2,node3,...">
+                </div>
+            </th>
+        </tr>
+    </table>
+</div>

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sealing System Database</title>
+    <style>
+        * {
+            margin: 0px;
+            padding: 0px;
+            font-family: Arial;
+        }
+
+        ul {
+            list-style: none;
+        }
+
+        .login_top {
+            margin-top: 5vh;
+        }
+
+        .slogan {
+            font-family: Arial;
+            font-style: italic;
+            font-weight: bolder;
+            margin: 10px;
+            text-align: right;
+            color: rgb(0, 51, 160);
+        }
+
+        .seperate_bar {
+            margin-top: 50px;
+            color: rgb(193, 204, 209);
+            border-width: 20px;
+        }
+
+        .login_h2 {
+            margin-left: 2vw;
+            padding-left: 50px;
+        }
+    </style>
+    <link rel="shortcut icon" href="/static/pics/Standards.png">
+    <link rel="stylesheet" href="/static/bootstrap-4.3.1-dist/css/bootstrap.css">
+</head>
+<body>
+<!--顶部Logo和slogan-->
+<div class="row login_top">
+    <div class="col-md-7">
+        <img src="/static/pics/logo.png" class="img-responsive" alt="Responsive image">
+    </div>
+    <div class="col-md-4 ">
+        <h3 class="slogan">TRUST AND INTEGRITY</h3>
+        <h3 class="slogan">DELIVER RESULTS</h3>
+        <h3 class="slogan">ACCOUNTABILITY</h3>
+        <h3 class="slogan">INNOVATION</h3>
+        <h3 class="slogan">SUSTAINABILITY</h3>
+    </div>
+</div>
+<!--分隔行-->
+<hr class="seperate_bar">
+<!--左下方巨幕-->
+<div class="row">
+    <div class="col-5">
+        <div class="jumbotron">
+            <h2>SEALING SYSTEM FEA DATABASE</h2>
+            <p style="font-size: 21px;text-indent: 2em">
+                The database is mainly created for FE analysts of sealing group,
+                user can get training material, small python tools to speed up your job, experience sharing,
+                report or program searching...
+            </p>
+            <form class="form" method="post" action="">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="username">Name</label>
+                    <input type="text" class="form-control" id="username" placeholder="Jane Doe" name="username">
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" class="form-control" id="password" placeholder="Password" name="password">
+                </div>
+                <button type="submit" class="btn btn-primary">Sign in</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-6" >
+        <h1>What's new...</h1>
+        <div class="card-deck">
+            <div class="card border-primary mb-3">
+                <img class="card-img-top" src="/static/pics/Engine_Assemble.png" alt="...">
+                <div class="card-body">
+                    <h5 class="card-title" style="color: #2b669a">Post Process Tool</h5>
+                    <p class="card-text">The updated tool is based on pure Python language, using web to communicate
+                        wth
+                        user.</p>
+                </div>
+                <div class="card-footer">
+                    <small class="text-muted">Last updated on 10/21/2018</small>
+                </div>
+            </div>
+            <div class="card border-primary mb-3">
+                <img class="card-img-top" src="/static/pics/Engine_Assemble.png" alt="...">
+                <div class="card-body">
+                    <h5 class="card-title" style="color: #2b669a">Data Library</h5>
+                    <p class="card-text">The library stores all necessary bead LDs, material data, tooling shape,
+                        fatigue
+                        data, rubber
+                        property.</p>
+                </div>
+                <div class="card-footer">
+                    <small class="text-muted">Last updated on 10/21/2018</small>
+                </div>
+            </div>
+            <div class="card border-primary mb-3">
+                <img class="card-img-top" src="/static/pics/Engine_Assemble.png" alt="...">
+                <div class="card-body">
+                    <h5 class="card-title" style="color: #2b669a">Server Monitor</h5>
+                    <p class="card-text">Based on web monitor, easy for user to know the server status, the sta file
+                        can be
+                        shown in the front
+                        page.</p>
+                </div>
+                <div class="card-footer">
+                    <small class="text-muted">Last updated on 10/21/2018</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="row">
+    <div class="col-12 login_h2">
+        <h5 align="center">All rights reserved. This document contains confidential
+            and proprietary information and may not be reproduced, distributed, used, or transmitted, in whole or in
+            part, in any form or by any means, and for any purpose without prior written authorization from Tenneco.
+            <br><br>
+            Copyright&#169 2019 Sealing
+            System FEA Team, Tenneco</h5>
+    </div>
+</div>
+</body>
+<script src="/static/jq/jquery-3.4.1.js"></script>
+<script src="/static/bootstrap-4.3.1-dist/js/bootstrap.js"></script>
+
+</html>

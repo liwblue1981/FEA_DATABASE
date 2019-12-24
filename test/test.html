@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="cn">
+<style>
+<style>
+    .bs-example{
+        margin: 150px 50px;
+    }
+</style>
+</style>
+<link rel="stylesheet" href="../../fea_database/fea_library/static/bootstrap-4.3.1-dist/css/bootstrap.css">
+<body>
+
+
+<div class="bs-example">
+    <button type="button" class="btn btn-primary" data-toggle="popover" title="Popover title" data-content="Default popover">Popover</button>
+    <button type="button" class="btn btn-success" data-toggle="popover" title="Popover title" data-content="Another popover">Another popover</button>
+    <button type="button" class="btn btn-info" data-toggle="popover" title="Popover title" data-content="A larger">Large popover</button>
+    <button type="button" class="btn btn-warning" data-toggle="popover" title="Popover title" data-content="The last popover!">Last popover</button>
+</div>
+
+
+</body>
+
+<script src="../../fea_database/fea_library/static/jq/jquery-3.4.1.js"></script>
+<script src="../../fea_database/fea_library/static/bootstrap-4.3.1-dist/js/popper.min.js"></script>
+<script src="../../fea_database/fea_library/static/bootstrap-4.3.1-dist/js/bootstrap.js"></script>
+
+<script>
+$(function (){
+    $("[data-toggle='popover']").popover();
+});
+</script>
+</html>

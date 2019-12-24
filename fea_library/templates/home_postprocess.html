@@ -1,0 +1,92 @@
+<div class="col-sm-6 col-md-4">
+    <div class="card mb-3">
+        <div class="row no-gutters">
+            <div class="col-md-4">
+                <img src="/static/pics/Post_CHG.png" class="card-img" alt="...">
+            </div>
+            <div class="col-md-8">
+                <div class="card-body">
+                    <h5 class="card-title">Cylinder Head Gasket</h5>
+                    <p class="card-text">Post process for Cylinder Head Gasket, can create line load, head lift,
+                        fatigue, bore distortion, load distribution, primary report, and output odb only gasket is
+                        included, etc...</p>
+                    <p class="card-text"><small class="text-muted">Last edit by Wei Li on 2019/10/11</small></p>
+                    {#data-target用来定义要出发的模态弹出窗口是哪一个,值是div.modal元素独有的类名,或者ID名#}
+                    {#必须要在出发元素上定义一个属性,而且要和div.modal中的独有类名或者ID名匹配#}
+                    <button type="button" class="btn btn-primary btn-sm" data-toggle="modal"
+                            data-target="#post_chg">
+                        Enter
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="col-sm-6 col-md-4">
+    <div class="card mb-3">
+        <div class="row no-gutters">
+            <div class="col-md-4">
+                <img src="/static/pics/Post_EMG.png" class="card-img" alt="...">
+            </div>
+            <div class="col-md-8">
+                <div class="card-body">
+                    <h5 class="card-title">Exhaust Manifold Gasket</h5>
+                    <p class="card-text">Compared with CHG, EMG post process is much more simple, only the bolt
+                        force
+                        history, LDs, and a simplified odb with gasket only. Most of post process should be done
+                        manually.</p>
+                    <p class="card-text"><small class="text-muted">Last edit by Wei Li on 2019/10/11</small></p>
+                    <button type="button" class="btn btn-primary btn-sm" data-toggle="modal"
+                            data-target="#post_emg">
+                        Enter
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="col-sm-6 col-md-4">
+    <div class="card mb-3">
+        <div class="row no-gutters">
+            <div class="col-md-4">
+                <img src="/static/pics/Post_Fatigue.png" class="card-img" alt="...">
+            </div>
+            <div class="col-md-8">
+                <div class="card-body">
+                    <h5 class="card-title">MLS Fatigue Calculation</h5>
+                    <p class="card-text">With the defined nodes, specified material, input files for all required
+                        load,
+                        load drop will be created. And the fatigue limit, LDs, bead shape (FB, HB) can be obtained
+                        automatically in excel file.</p>
+                    <p class="card-text"><small class="text-muted">Last edit by Wei Li on 2019/10/11</small></p>
+                    <button type="button" class="btn btn-primary btn-sm" data-toggle="modal"
+                            data-target="#post_fatigue">
+                        Enter
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="col-sm-6 col-md-4">
+    <div class="card mb-3">
+        <div class="row no-gutters">
+            <div class="col-md-4">
+                <img src="/static/pics/Post_HS.png" class="card-img" alt="...">
+            </div>
+            <div class="col-md-8">
+                <div class="card-body">
+                    <h5 class="card-title">HS Orientation</h5>
+                    <p class="card-text">Nimbus GII is corrugated with two Aluminum layers, material will exhibit
+                        different property in the corrugation direction and direction perpendicular to corrugation,
+                        local orientation is required based on corrugation and geometry to get accurate results.</p>
+                    <p class="card-text"><small class="text-muted">Last edit by Wei Li on 2019/10/11</small></p>
+                    <button type="button" class="btn btn-primary btn-sm" data-toggle="modal"
+                            data-target="#post_hs">
+                        Enter
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
