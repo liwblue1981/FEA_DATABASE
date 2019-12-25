@@ -442,6 +442,12 @@ class StartProcess(View):
         #
         file_name = final_user_input['main_input_file'].split('/')[-1].split('.')[0]
         store_folder = os.path.join(local_settings['SERVER_LOCATION'], file_name)
+        original_backup = os.path.join(store_folder, file_name + '_backup.json')
+        with open(original_backup, 'rt', encoding='utf-8') as f:
+            temp_json = json.load(f)
+        final_user_input['bolt_node'] = temp_json['bolt_node']
+        final_user_input['fixed_step'] = temp_json['fixed_step']
+
         json_file = file_name + '_userinput.json'
         try:
             with open(os.path.join(store_folder, json_file), 'wt', encoding='utf-8') as f:
