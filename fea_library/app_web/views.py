@@ -208,6 +208,8 @@ class ReadMain(View):
         key_para['local_location'] = local_location
         local_function.process_bar_read.add_record(['Write to Json File', 'Finished'])
         key_para['process_log'] = local_function.process_bar_read.record
+        # 最后统一写入文件一次
+        local_function.process_bar_read.record_write()
         with open(json_file, 'wt', encoding='utf-8') as f:
             json.dump(key_para, f)
             num_progress = 95
@@ -219,6 +221,8 @@ class ReadMain(View):
         local_function.process_bar_process.set_archive_path(
             os.path.join(store_folder, file_name + '_recordprocess.log'))
         local_function.process_bar_process.set_status(15, 'Start Upload Files')
+        local_function.process_bar_process.add_record(['Start Upload Files', 'Successfully'])
+        local_function.process_bar_process.record_write()
         # 1. 链接数据库
         # 2. 尝试上传文件
         text_value = 'Connect to Server ' + hostname
@@ -401,14 +405,61 @@ class StartProcess(View):
     def post(self, request, *args, **kwargs):
         # 得到前端传入的数据
         res = json.loads(request.body.decode('utf-8'))
-        hostname = res.get('server_name').lower()
-        server_location = res.get('server_location')
-        main_input_file = res.get('main_input_file')
-        file_name = main_input_file.split('/')[-1].split('.')[0]
+        final_user_input = {}
+        final_user_input['server_name'] = res.get('server_name').lower()
+        final_user_input['server_location'] = res.get('server_location')
+        if not final_user_input['server_location'].endswith('/'):
+            final_user_input['server_location'] += '/'
+        final_user_input['main_input_file'] = res.get('main_input_file')
+        final_user_input['local_location'] = res.get('local_location')
+        final_user_input['total_cylinder_num'] = res.get('total_cylinder_num')
+        final_user_input['report_set'] = res.get('report_set')
+        final_user_input['fatigue_set'] = res.get('fatigue_set')
+        final_user_input['excel_set'] = res.get('excel_set')
+        final_user_input['add_elem_set_name'] = res.get('add_elem_set_name')
+        final_user_input['add_elem_set_list'] = res.get('add_elem_set_list')
+        final_user_input['bore_distortion_step'] = res.get('bore_distortion_step')
+        final_user_input['bore_distortion_order'] = res.get('bore_distortion_order')
+        final_user_input['bore_distortion_radius'] = res.get('bore_distortion_radius')
+        final_user_input['boredistortion_manually'] = res.get('boredistortion_manually')
+        final_user_input['boredistortion_auto'] = res.get('boredistortion_auto')
+        final_user_input['boredistortion_manually_nodeset'] = res.get('boredistortion_manually_nodeset')
+        final_user_input['boredistortion_auto_points'] = res.get('boredistortion_auto_points')
+        final_user_input['boredistortion_auto_layers'] = res.get('boredistortion_auto_layers')
+        final_user_input['boredistortion_auto_linername'] = res.get('boredistortion_auto_linername')
+        final_user_input['boredistortion_auto_starts'] = res.get('boredistortion_auto_starts')
+        final_user_input['boredistortion_auto_ends'] = res.get('boredistortion_auto_ends')
+        final_user_input['cam_distortion_step'] = res.get('cam_distortion_step')
+        final_user_input['add_cam_node_list'] = res.get('add_cam_node_list')
+        final_user_input['fatigue_id'] = res.get('fatigue_id')
+        final_user_input['distance_between_bores'] = res.get('distance_between_bores')
+        final_user_input['bore_center_y'] = res.get('bore_center_y')
+        final_user_input['firing_cylinder_name'] = res.get('firing_cylinder_name')
+        final_user_input['firing_cylinder_x_center'] = res.get('firing_cylinder_x_center')
+        final_user_input['firing_cylinder_x_min'] = res.get('firing_cylinder_x_min')
+        final_user_input['firing_cylinder_x_max'] = res.get('firing_cylinder_x_max')
+        final_user_input['firing_name_list'] = res.get('firing_name_list')
+        #
+        file_name = final_user_input['main_input_file'].split('/')[-1].split('.')[0]
         store_folder = os.path.join(local_settings['SERVER_LOCATION'], file_name)
+        json_file = file_name + '_userinput.json'
+        try:
+            with open(os.path.join(store_folder, json_file), 'wt', encoding='utf-8') as f:
+                json.dump(final_user_input, f)
+            text_value = 'Backup User Input'
+            res = local_function.connect_to_server(final_user_input['server_name'], local_function.process_bar_process,
+                                                   20, text_value, [json_file], final_user_input['server_location'],
+                                                   store_folder, down_up='Upload')
+            if not res:
+                return HttpResponse('Failed')
+        except Exception as e:
+            local_function.process_bar_process.set_status(20, 'Backup User Input Failed')
+            local_function.process_bar_process.record_write()
+            return HttpResponse('Failed')
+        #
+        local_function.process_bar_process.record_write()
         # 1. Process按钮点击执行到这里
 
         # 可以开始准备执行一个脚本了,周一先测试该脚本独立在服务器上运行,不需要考虑前后端交互,任务是顺利执行所有ABAQUS的后处理程序.
-
 
         return HttpResponse('OK')

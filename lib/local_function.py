@@ -180,7 +180,7 @@ class ProcessStatus:
     def add_record(self, arr):
         arr.insert(0, time.strftime("%X", time.localtime()))
         self.record.append(arr)
-        self.record_write()
+        # self.record_write()
 
     def record_write(self):
         with open(self.archive_path, 'at', encoding='utf-8') as f:
@@ -203,21 +203,19 @@ def read_log_from_server(hostname):
     :param hostname: 服务器名称
     :return: 返回状态码,包括进度比例和当前运行状态
     """
-    username = local_settings['USER_NAME']
-    password = local_settings['PASSWORD']
     log_file = process_bar_process.get_archive_path()
+    remote_folder = log_file.rsplit('/', 1)[0]
+    log_file = log_file.rsplit('/', 1)[1]
+    folder_name = log_file.rsplit('.', 1)[0]
+    store_folder = os.path.join(local_settings['SERVER_LOCATION'], folder_name, log_file)
     try:
-        connect_server = SSH(ip=local_settings[hostname], username=username, password=password)
-        connect_server.connect()
-        log_file_name = log_file.split('/')[-1]
-        print(log_file_name)
-        store_folder = os.path.join(local_settings['SERVER_LOCATION'], log_file_name)
-        connect_server._sftp_get(log_file, store_folder)
-        with open(store_folder, 'rt', encoding='utf-8') as f:
-            line = f.readlines()[-1].split()
-            print(line)
-            num_value = line[1].strip()
-            text_value = line[2].strip()
+        res = connect_to_server(hostname, process_bar_process, 10, 'Read Log File', [log_file], remote_folder,
+                                store_folder)
+        if res:
+            with open(store_folder, 'rt', encoding='utf-8') as f:
+                line = f.readlines()[-1].split()
+                num_value = line[1].strip()
+                text_value = line[2].strip()
     except Exception as e:
         num_value = 0
         text_value = str(e)
@@ -226,7 +224,6 @@ def read_log_from_server(hostname):
         'text_progress': text_value
     }
     return current_status
-
 
 
 def connect_to_server(hostname, process_bar, num_value, text_value, file_list, remote_folder, local_folder,
@@ -251,17 +248,17 @@ def connect_to_server(hostname, process_bar, num_value, text_value, file_list, r
             local_file = os.path.join(local_folder, temp_file)
             if down_up == 'Download':
                 connect_server._sftp_get(remote_file, local_file)
+                text_value = temp_file + ' Download'
             elif down_up == 'Upload':
                 connect_server._sftp_put(local_file, remote_file)
-        text_value = 'Required Files ' + down_up + ' Finished'
-        process_bar.set_status(num_value + 5, text_value)
-        process_bar.add_record(['Required Files Download', 'Finished'])
+                text_value = temp_file + ' Upload'
+            process_bar.add_record([text_value, 'Finished'])
+        process_bar.set_status(num_value + 5, down_up + ' Done')
         connect_server.close()
     except Exception as e:
-        print(process_bar)
         text_value = 'Failed to Download Required Files!'
         process_bar.set_status(num_value + 5, text_value)
-        process_bar.add_record(['Required Files Download', 'Failed'])
+        process_bar.add_record(['Files ' + str(temp_file), 'Failed'])
         process_bar.add_record(['*' * 10 + 'Error', str(e)])
         return False
     return True
