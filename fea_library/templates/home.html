@@ -793,7 +793,7 @@
         $('.progress-bar').text('1%');
 
         var sitv = setInterval(function () {
-            var prog_url = '/show_progress_process?hostname=' + post_data['server_name'].toLowerCase();
+            var prog_url = '/show_progress_process?server_name=' + post_data['server_name'].toLowerCase() + '&server_location=' + post_data['server_location'];
             $.getJSON(prog_url, function (data) {
                 $('.progress-bar').css('width', data.num_progress + '%');
                 $('.progress-bar').text(data.num_progress + '%');

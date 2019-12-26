@@ -391,10 +391,10 @@ class ShowProgressProcessing(View):
     # 2. Process过程会持续调用该函数
     def get(self, request, *args, **kwargs):
         # 需要从服务器中读取,位于set_archive_path, 用get方法来拿前台的GET请求值,get方法的好处是,如果没有该值,返回None
-        hostname = request.GET.get('hostname')
-        temp = {'HostName': 'False'}
-        if hostname:
-            temp = local_function.read_log_from_server(hostname)
+        server_name = request.GET.get('server_name')
+        server_location = request.GET.get('server_location')
+        if server_name:
+            temp = local_function.read_log_from_server(server_name, server_location, local_function.process_bar_process)
         return JsonResponse(temp)
 
 
@@ -406,49 +406,129 @@ class StartProcess(View):
         # 得到前端传入的数据
         res = json.loads(request.body.decode('utf-8'))
         final_user_input = {}
-        final_user_input['server_name'] = res.get('server_name').lower()
-        final_user_input['server_location'] = res.get('server_location')
-        if not final_user_input['server_location'].endswith('/'):
-            final_user_input['server_location'] += '/'
+        # 这里是在读入以后还可以修改的数据
+        local_function.process_bar_process.add_record(['Read in Parameters', 'Start'])
         final_user_input['main_input_file'] = res.get('main_input_file')
-        final_user_input['local_location'] = res.get('local_location')
-        final_user_input['total_cylinder_num'] = res.get('total_cylinder_num')
-        final_user_input['report_set'] = res.get('report_set')
-        final_user_input['fatigue_set'] = res.get('fatigue_set')
-        final_user_input['excel_set'] = res.get('excel_set')
-        final_user_input['add_elem_set_name'] = res.get('add_elem_set_name')
-        final_user_input['add_elem_set_list'] = res.get('add_elem_set_list')
-        final_user_input['bore_distortion_step'] = res.get('bore_distortion_step')
-        final_user_input['bore_distortion_order'] = res.get('bore_distortion_order')
-        final_user_input['bore_distortion_radius'] = res.get('bore_distortion_radius')
-        final_user_input['boredistortion_manually'] = res.get('boredistortion_manually')
-        final_user_input['boredistortion_auto'] = res.get('boredistortion_auto')
-        final_user_input['boredistortion_manually_nodeset'] = res.get('boredistortion_manually_nodeset')
-        final_user_input['boredistortion_auto_points'] = res.get('boredistortion_auto_points')
-        final_user_input['boredistortion_auto_layers'] = res.get('boredistortion_auto_layers')
-        final_user_input['boredistortion_auto_linername'] = res.get('boredistortion_auto_linername')
-        final_user_input['boredistortion_auto_starts'] = res.get('boredistortion_auto_starts')
-        final_user_input['boredistortion_auto_ends'] = res.get('boredistortion_auto_ends')
-        final_user_input['cam_distortion_step'] = res.get('cam_distortion_step')
-        final_user_input['add_cam_node_list'] = res.get('add_cam_node_list')
-        final_user_input['fatigue_id'] = res.get('fatigue_id')
-        final_user_input['distance_between_bores'] = res.get('distance_between_bores')
-        final_user_input['bore_center_y'] = res.get('bore_center_y')
-        final_user_input['firing_cylinder_name'] = res.get('firing_cylinder_name')
-        final_user_input['firing_cylinder_x_center'] = res.get('firing_cylinder_x_center')
-        final_user_input['firing_cylinder_x_min'] = res.get('firing_cylinder_x_min')
-        final_user_input['firing_cylinder_x_max'] = res.get('firing_cylinder_x_max')
-        final_user_input['firing_name_list'] = res.get('firing_name_list')
-        #
-        file_name = final_user_input['main_input_file'].split('/')[-1].split('.')[0]
+        # 读取主文件名,才可以获取后面需要的json文件
+        file_name = final_user_input['main_input_file'].split('.')[0]
         store_folder = os.path.join(local_settings['SERVER_LOCATION'], file_name)
+        try:
+            final_user_input['total_cylinder_num'] = int(res.get('total_cylinder_num'))
+            final_user_input['report_set'] = []
+            for item in res.get('report_set').split(','):
+                final_user_input['report_set'].append(item)
+            final_user_input['fatigue_set'] = []
+            for item in res.get('fatigue_set').split(','):
+                final_user_input['fatigue_set'].append(item)
+            final_user_input['excel_set'] = []
+            for item in res.get('excel_set').split(','):
+                final_user_input['excel_set'].append(item)
+            final_user_input['add_elem_set_name'] = []
+            for item in res.get('add_elem_set_name'):
+                final_user_input['add_elem_set_name'].append(item)
+            final_user_input['add_elem_set_list'] = []
+            for item in res.get('add_elem_set_list'):
+                final_user_input['add_elem_set_list'].append(item)
+            final_user_input['bore_distortion_step'] = int(res.get('bore_distortion_step'))
+            final_user_input['bore_distortion_order'] = int(res.get('bore_distortion_order'))
+            final_user_input['bore_distortion_radius'] = float(res.get('bore_distortion_radius'))
+            if res.get('boredistortion_manually') == 'manually':
+                final_user_input['boredistortion_manually'] = True
+                final_user_input['boredistortion_auto'] = False
+                final_user_input['boredistortion_manually_nodeset'] = res.get('boredistortion_manually_nodeset')
+                final_user_input['boredistortion_auto_points'] = 0
+                final_user_input['boredistortion_auto_layers'] = 0
+                final_user_input['boredistortion_auto_linername'] = None
+                final_user_input['boredistortion_auto_starts'] = 0
+                final_user_input['boredistortion_auto_ends'] = 0
+            else:
+                final_user_input['boredistortion_manually'] = False
+                final_user_input['boredistortion_auto'] = True
+                final_user_input['boredistortion_manually_nodeset'] = None
+                final_user_input['boredistortion_auto_points'] = int(res.get('boredistortion_auto_points'))
+                final_user_input['boredistortion_auto_layers'] = int(res.get('boredistortion_auto_layers'))
+                final_user_input['boredistortion_auto_linername'] = res.get('boredistortion_auto_linername')
+                final_user_input['boredistortion_auto_starts'] = float(res.get('boredistortion_auto_starts'))
+                final_user_input['boredistortion_auto_ends'] = float(res.get('boredistortion_auto_ends'))
+            final_user_input['cam_distortion_step'] = int(res.get('cam_distortion_step'))
+            final_user_input['add_cam_node_list'] = []
+            if final_user_input['cam_distortion_step']:
+                for item in res.get('add_cam_node_list'):
+                    final_user_input['add_cam_node_list'].append(item)
+            else:
+                final_user_input['add_cam_node_list'] = None
+            final_user_input['fatigue_id'] = []
+            for item in res.get('fatigue_id'):
+                final_user_input['fatigue_id'].append(int(item))
+            final_user_input['distance_between_bores'] = float(res.get('distance_between_bores'))
+            final_user_input['bore_center_y'] = float(res.get('bore_center_y'))
+            final_user_input['firing_cylinder_name'] = []
+            for item in res.get('firing_cylinder_name'):
+                final_user_input['firing_cylinder_name'].append(item)
+            final_user_input['firing_cylinder_x_center'] = []
+            for item in res.get('firing_cylinder_x_center'):
+                final_user_input['firing_cylinder_x_center'].append(float(item))
+            final_user_input['firing_cylinder_x_min'] = []
+            for item in res.get('firing_cylinder_x_min'):
+                final_user_input['firing_cylinder_x_min'].append(float(item))
+            final_user_input['firing_cylinder_x_max'] = []
+            for item in res.get('firing_cylinder_x_max'):
+                final_user_input['firing_cylinder_x_max'].append(float(item))
+            final_user_input['firing_name_list'] = []
+            for item in res.get('firing_name_list'):
+                final_user_input['firing_name_list'].append(item)
+            # 其余的关键变量还是从json里面获取,而不是从前端获取
+            original_backup = os.path.join(store_folder, file_name + '_backup.json')
+            with open(original_backup, 'rt', encoding='utf-8') as f:
+                temp_json = json.load(f)
+            final_user_input['hostname'] = temp_json['hostname']
+            final_user_input['server_path'] = temp_json['server_path']
+            final_user_input['gasket_input_file'] = temp_json['gasket_input_file']
+            final_user_input['local_location'] = temp_json['local_location']
+            final_user_input['request_number'] = temp_json['request_number']
+            final_user_input['submit_name'] = temp_json['submit_name']
+            final_user_input['analyst_name'] = temp_json['analyst_name']
+            final_user_input['customer'] = temp_json['customer']
+            final_user_input['project_name'] = temp_json['project_name']
+            final_user_input['title'] = temp_json['title']
+            final_user_input['p_dome'] = temp_json['p_dome']
+            final_user_input['bolt_node'] = temp_json['bolt_node']
+            final_user_input['bolt_force'] = float(temp_json['bolt_force'])
+            final_user_input['fixed_step'] = temp_json['fixed_step']
+            final_user_input['ini_assem'] = temp_json['ini_assem']
+            final_user_input['hot_assem'] = temp_json['hot_assem']
+            gasket_section = temp_json['gasket_section']
+            new_gasket_section = {}
+            for i, set_name in enumerate(final_user_input['fatigue_set']):
+                # 确认疲劳数据时,以ID为准
+                fatigue_id = final_user_input['fatigue_id'][i]
+                if set_name in gasket_section:
+                    section_name = gasket_section[set_name][0]
+                    initial_gap = gasket_section[set_name][1]
+                else:
+                    section_name = "BODY-0W-0H-200T-100R-0L-0PRELOAD-0SW-NONT-FMGS1-GLOBAL-TEST-1FL"
+                    initial_gap = 0
+                new_gasket_section[set_name] = [section_name, initial_gap, fatigue_id]
+            new_gasket_section, failed_set = local_function.connect_fatigue_database(new_gasket_section)
+            if failed_set:
+                for set_name in failed_set:
+                    local_function.process_bar_process.add_record(['Fatigue Set for ' + set_name, 'Failed'])
+            final_user_input['gasket_section'] = new_gasket_section
+            local_function.process_bar_process.add_record(['Read in Parameters', 'Done'])
+            local_function.process_bar_process.add_record(['Start Post Processing', 10])
+        except Exception as e:
+            for keys in final_user_input:
+                local_function.process_bar_process.add_record([keys, final_user_input[keys]])
+            local_function.process_bar_process.add_record(['Error', str(e)])
+            local_function.process_bar_process.record_write()
+        # 建立所有信息整合输出为json
         json_file = file_name + '_userinput.json'
         try:
             with open(os.path.join(store_folder, json_file), 'wt', encoding='utf-8') as f:
                 json.dump(final_user_input, f)
             text_value = 'Backup User Input'
-            res = local_function.connect_to_server(final_user_input['server_name'], local_function.process_bar_process,
-                                                   20, text_value, [json_file], final_user_input['server_location'],
+            res = local_function.connect_to_server(final_user_input['hostname'], local_function.process_bar_process,
+                                                   20, text_value, [json_file], final_user_input['server_path'],
                                                    store_folder, down_up='Upload')
             if not res:
                 return HttpResponse('Failed')

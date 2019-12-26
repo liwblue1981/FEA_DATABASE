@@ -197,33 +197,34 @@ process_bar_read = ProcessStatus()
 process_bar_process = ProcessStatus()
 
 
-def read_log_from_server(hostname):
+def read_log_from_server(server_name, server_location, process_bar):
     """
     读取整个运行Python的过程,返回给前端,显示在状态栏上.只有当状态发生更新的时候,才会请求读取.
     :param hostname: 服务器名称
     :return: 返回状态码,包括进度比例和当前运行状态
     """
     log_file = process_bar_process.get_archive_path()
-    remote_folder = log_file.rsplit('/', 1)[0]
-    log_file = log_file.rsplit('/', 1)[1]
-    folder_name = log_file.rsplit('.', 1)[0]
-    store_folder = os.path.join(local_settings['SERVER_LOCATION'], folder_name, log_file)
+    folder_name = log_file.rsplit('/', 1)[0]
+    file_name = log_file.rsplit('/', 1)[1]
+    remote_folder = server_location
     try:
-        res = connect_to_server(hostname, process_bar_process, 10, 'Read Log File', [log_file], remote_folder,
-                                store_folder)
+        # 下载日志文件
+        res = connect_to_server(server_name, process_bar_process, 10, 'Read Log File', [file_name], remote_folder,
+                                folder_name)
         if res:
-            with open(store_folder, 'rt', encoding='utf-8') as f:
+            with open(log_file, 'rt', encoding='utf-8') as f:
                 line = f.readlines()[-1].split()
-                num_value = line[1].strip()
-                text_value = line[2].strip()
+                # 这里反一反, 将状态进度放在最后, 文本信息放在中间
+                num_value = line[2].strip()
+                text_value = line[1].strip()
+                if not num_value.isdigit():
+                    num_value = 10
+                    text_value = 'Waiting to Start Abaqus Viewer'
     except Exception as e:
         num_value = 0
         text_value = str(e)
-    current_status = {
-        'num_progress': num_value,
-        'text_progress': text_value
-    }
-    return current_status
+    process_bar.set_status(num_value, text_value)
+    return process_bar.get_status()
 
 
 def connect_to_server(hostname, process_bar, num_value, text_value, file_list, remote_folder, local_folder,
@@ -280,11 +281,17 @@ def connect_fatigue_database(gasket_section):
         process_bar_read.add_record(['*' * 10 + 'Error', str(e)])
 
     cursor = db.cursor()
+    failed_set = []
     try:
         for elem_set_name in gasket_section:
             behavior_set_name = gasket_section[elem_set_name][0].rsplit('-', 3)[0]
-            cursor.execute('select beadid, preaload_Percentage, myData from ' + database_info[
+            fatigue_id = gasket_section[elem_set_name][2]
+            if not fatigue_id:
+                cursor.execute('select beadid, preaload_Percentage, myData from ' + database_info[
                 'fatigue_table'] + ' where name=\'' + behavior_set_name + '\'')
+            else:
+                cursor.execute('select beadid, preaload_Percentage, myData from ' + database_info[
+                    'fatigue_table'] + ' where beadid=' + str(fatigue_id))
             data = cursor.fetchone()
             if data:
                 gasket_section[elem_set_name][2] = data[0]
@@ -304,12 +311,14 @@ def connect_fatigue_database(gasket_section):
                         else:
                             temp_value[-1].append(float(each_data))
                 gasket_section[elem_set_name].append([pre_load_list, temp_load, temp_value])
+            else:
+                failed_set.append(elem_set_name)
     except Exception as e:
         process_bar_read.add_record(['Connect to Fatigue Table', 'Failed'])
         process_bar_read.add_record(['*' * 10 + 'Error', str(e)])
     finally:
         db.close()
-    return gasket_section
+    return gasket_section, failed_set
 
 
 def connect_request_database(fea_number):
@@ -675,7 +684,7 @@ def read_gsk_file(gsk_file, main_input_file, gasket_input_file, store_folder):
                         # process_bar_read.add_record(['Searching Gasket Gap - ', str(gasket_section[elem_set_name])])
             else:
                 break
-    gasket_section = connect_fatigue_database(gasket_section)
+    gasket_section, _ = connect_fatigue_database(gasket_section)
     num_temp = 90
     text_temp = 'Gasket Fatigue Data Read in Done'
     process_bar_read.set_status(num_temp, text_temp)
