@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="b774c1ef-b08e-43d1-aaf3-8efbd7635507" name="Default Changelist" comment="" />
+    <list default="true" id="b774c1ef-b08e-43d1-aaf3-8efbd7635507" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/fea_database.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/fea_database.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/fea_library/app_web/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/fea_library/app_web/views.py" afterDir="false" />
+    </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -28,8 +33,8 @@
   <component name="PropertiesComponent">
     <property name="DefaultHtmlFileTemplate" value="HTML File" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="C:/Program Files/Git/mingw64/libexec/git-core/git.exe" />
-    <property name="settings.editor.selected.configurable" value="vcs.Git" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
@@ -149,7 +154,12 @@
       <workItem from="1574580351261" duration="31710000" />
       <workItem from="1574735098221" duration="151154000" />
       <workItem from="1575510169394" duration="66590000" />
+<<<<<<< HEAD
       <workItem from="1576205637921" duration="71783000" />
+=======
+      <workItem from="1576205637921" duration="48460000" />
+      <workItem from="1577276493586" duration="1291000" />
+>>>>>>> 74bc8440eaa3acdaecc0874c3fa46e5c746857cf
     </task>
     <servers />
   </component>
@@ -161,7 +171,9 @@
       <map>
         <entry key="MAIN">
           <value>
-            <State />
+            <State>
+              <option name="COLUMN_ORDER" />
+            </State>
           </value>
         </entry>
       </map>

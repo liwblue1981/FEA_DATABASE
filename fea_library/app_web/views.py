@@ -458,6 +458,7 @@ class StartProcess(View):
             else:
                 final_user_input['add_cam_node_list'] = None
             final_user_input['fatigue_id'] = []
+            print('*'*10 + str(res.get('fatigue_id')))
             for item in res.get('fatigue_id'):
                 final_user_input['fatigue_id'].append(int(item))
             final_user_input['distance_between_bores'] = float(res.get('distance_between_bores'))
