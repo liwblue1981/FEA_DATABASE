@@ -429,7 +429,7 @@ class StartProcess(View):
             final_user_input['add_elem_set_list'] = []
             for item in res.get('add_elem_set_list'):
                 final_user_input['add_elem_set_list'].append(item)
-            final_user_input['bore_distortion_step'] = int(res.get('bore_distortion_step'))
+            final_user_input['bore_distortion_step'] = res.get('bore_distortion_step')
             final_user_input['bore_distortion_order'] = int(res.get('bore_distortion_order'))
             final_user_input['bore_distortion_radius'] = float(res.get('bore_distortion_radius'))
             if res.get('boredistortion_manually') == 'manually':
@@ -450,7 +450,7 @@ class StartProcess(View):
                 final_user_input['boredistortion_auto_linername'] = res.get('boredistortion_auto_linername')
                 final_user_input['boredistortion_auto_starts'] = float(res.get('boredistortion_auto_starts'))
                 final_user_input['boredistortion_auto_ends'] = float(res.get('boredistortion_auto_ends'))
-            final_user_input['cam_distortion_step'] = int(res.get('cam_distortion_step'))
+            final_user_input['cam_distortion_step'] = res.get('cam_distortion_step')
             final_user_input['add_cam_node_list'] = []
             if final_user_input['cam_distortion_step']:
                 for item in res.get('add_cam_node_list'):
@@ -458,7 +458,6 @@ class StartProcess(View):
             else:
                 final_user_input['add_cam_node_list'] = None
             final_user_input['fatigue_id'] = []
-            print('*'*10 + str(res.get('fatigue_id')))
             for item in res.get('fatigue_id'):
                 final_user_input['fatigue_id'].append(int(item))
             final_user_input['distance_between_bores'] = float(res.get('distance_between_bores'))
@@ -498,6 +497,7 @@ class StartProcess(View):
             final_user_input['fixed_step'] = temp_json['fixed_step']
             final_user_input['ini_assem'] = temp_json['ini_assem']
             final_user_input['hot_assem'] = temp_json['hot_assem']
+            final_user_input['relative_motion'] = temp_json['relative_motion']
             gasket_section = temp_json['gasket_section']
             new_gasket_section = {}
             for i, set_name in enumerate(final_user_input['fatigue_set']):
